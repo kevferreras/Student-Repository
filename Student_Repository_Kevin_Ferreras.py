@@ -204,13 +204,3 @@ def main() -> None:
 if __name__ == '__main__':
     main()
 
-
-
-# x = Repository(r'C:\Users\Kevin\Documents\SSW810 - Software Dev Tools & Techniques')
-# print(x.all_majors_summary())
-# print(x.all_students_summary())
-# print(x.all_instructors_summary())
-
-
-
-
