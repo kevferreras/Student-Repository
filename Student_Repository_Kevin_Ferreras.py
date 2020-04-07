@@ -191,9 +191,6 @@ def main() -> None:
     university_names: List[str] = ['stevens', 'colombia', 'nyu']
     university_repositories: List[Repository] = [stevens, colombia, nyu]
 
-    university_names: List[str] = ['stevens']
-    university_repositories: List[Repository] = [stevens]
-
     for university_name, university_repository in zip(university_names, university_repositories):
         print(f'\nSummaries for {university_name.capitalize()}:')
         print(university_repository.all_majors_summary())
