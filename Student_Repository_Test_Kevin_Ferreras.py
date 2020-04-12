@@ -2,9 +2,12 @@
 
 from Student_Repository_Kevin_Ferreras import Student, Instructor, Repository
 from HW08_Kevin_Ferreras import file_reader
-from typing import Dict, List, Tuple, Any
+from typing import Dict, List, Tuple, Any, Set
 import unittest
 import os
+import sqlite3
+
+DB_FILE: str = r'C:\Users\Kevin\Documents\SSW810 - Software Dev Tools & Techniques\student_repository_database.sqlite'
  
 
 class RepositoryTest(unittest.TestCase):
@@ -19,16 +22,10 @@ class RepositoryTest(unittest.TestCase):
         
         expected: Dict[str, Student] = {
 
-                '10103': ('10103', 'Baldwin, C', ['CS 501', 'SSW 564', 'SSW 567', 'SSW 687'], ['SSW 540', 'SSW 555'], ['CS 513', 'CS 545'], '3.44'),
-                '10115': ('10115', 'Wyatt, X', ['CS 545', 'SSW 564', 'SSW 567', 'SSW 687'], ['SSW 540', 'SSW 555'], ['CS 501', 'CS 513'], '3.81'),
-                '10172': ('10172', 'Forbes, I', ['SSW 555', 'SSW 567'], ['SSW 540', 'SSW 564'], ['CS 501', 'CS 513', 'CS 545'], '3.88'),
-                '10175': ('10175', 'Erickson, D', ['SSW 564', 'SSW 567', 'SSW 687'], ['SSW 540', 'SSW 555'], ['CS 501', 'CS 513', 'CS 545'], '3.58'),
-                '10183': ('10183', 'Chapman, O',['SSW 689'], ['SSW 540', 'SSW 555', 'SSW 564', 'SSW 567'], ['CS 501', 'CS 513', 'CS 545'], '4.00'), 
-                '11399': ('11399', 'Cordova, I', ['SSW 540'], ['SYS 612', 'SYS 671', 'SYS 800'], ['SSW 565', 'SSW 810'], '3.00'), 
-                '11461': ('11461', 'Wright, U', ['SYS 611', 'SYS 750', 'SYS 800'], ['SYS 612', 'SYS 671'], ['SSW 540', 'SSW 565', 'SSW 810'], '3.92'), 
-                '11658': ('11658', 'Kelly, P', ['SSW 540'], ['SYS 612', 'SYS 671', 'SYS 800'], ['SSW 540', 'SSW 565', 'SSW 810'], '0.00'),
-                '11714': ('11714', 'Morton, A', ['SYS 611', 'SYS 645'], ['SYS 612', 'SYS 671', 'SYS 800'], ['SSW 540', 'SSW 565', 'SSW 810'], '3.00'),
-                '11788': ('11788', 'Fuller, E', ['SSW 540'], ['SYS 612', 'SYS 671', 'SYS 800'], ['SSW 565', 'SSW 810'], '4.00'),
+                '10103': ('10103', 'Jobs, S', ['CS 501', 'SSW 810'], ['SSW 540', 'SSW 555'], [], '3.38'),
+                '10115': ('10115', 'Bezos, J', ['CS 546', 'SSW 810'], ['SSW 540', 'SSW 555'], ['CS 501', 'CS 546'], '2.00'),
+                '10183': ('10183', 'Musk, E', ['SSW 555', 'SSW 810'], ['SSW 540'], ['CS 501', 'CS 546'], '4.00'), 
+                '11714': ('11714', 'Gates, B', ['CS 546', 'CS 570', 'SSW 810'], [], [], '3.50'),
                              
             }
 
@@ -43,22 +40,16 @@ class RepositoryTest(unittest.TestCase):
 
         expected: Set[Tuple[Any]] = {
 
-            ('98765', 'Einstein, A', 'SFEN', 'SSW 567', 4),
-            ('98765', 'Einstein, A', 'SFEN', 'SSW 540', 3),
-            ('98764', 'Feynman, R', 'SFEN', 'SSW 564', 3),
-            ('98764', 'Feynman, R', 'SFEN', 'SSW 687', 3),
-            ('98764', 'Feynman, R', 'SFEN', 'CS 501', 1),
-            ('98764', 'Feynman, R', 'SFEN', 'CS 545', 1),
-            ('98763', 'Newton, I', 'SFEN', 'SSW 555', 1),
-            ('98763', 'Newton, I', 'SFEN', 'SSW 689', 1),            
-            ('98760', 'Darwin, C', 'SYEN', 'SYS 800', 1),
-            ('98760', 'Darwin, C', 'SYEN', 'SYS 750', 1),
-            ('98760', 'Darwin, C', 'SYEN', 'SYS 611', 2),
-            ('98760', 'Darwin, C', 'SYEN', 'SYS 645', 1),
+            ('98764', 'Cohen, R', 'SFEN', 'CS 546', 1),
+            ('98763', 'Rowland, J', 'SFEN', 'SSW 810', 4),
+            ('98763', 'Rowland, J', 'SFEN', 'SSW 555', 1), 
+            ('98762', 'Hawking, S', 'CS', 'CS 501', 1),
+            ('98762', 'Hawking, S', 'CS', 'CS 546', 1),
+            ('98762', 'Hawking, S', 'CS', 'CS 570', 1),
 
             }
 
-        calculated: Tuple[Any] = {tuple(detail) for instructor in school_repository._instructor_repository.values() for detail in instructor.instructor_summary_row()}
+        calculated: Set[Tuple[Any]] = {tuple(detail) for instructor in school_repository._instructor_repository.values() for detail in instructor.instructor_summary_row()}
 
         self.assertEqual(expected, calculated)
 
@@ -70,13 +61,40 @@ class RepositoryTest(unittest.TestCase):
         expected: DefaultDict[str, Defaultdict[str, List[str]]] = {
 
 
-            'SFEN': {'Required Courses': ['SSW 540', 'SSW 564', 'SSW 555', 'SSW 567'], 'Electives': ['CS 501', 'CS 513', 'CS 545']},
-            'SYEN': {'Required Courses': ['SYS 671', 'SYS 612', 'SYS 800'], 'Electives': ['SSW 810', 'SSW 565', 'SSW 540']},
+            'SFEN': {'R': ['SSW 540', 'SSW 810', 'SSW 555'], 'E': ['CS 501', 'CS 546']},
+            'CS': {'R': ['CS 570', 'CS 546'], 'E': ['SSW 810', 'SSW 565']},
 
         }
 
 
         self.assertEqual(expected, school_repository._majors_repository)
+
+    def test_student_grades_table_db(self) -> None:
+        '''Tests that the correct data is retrieved from the student repository database'''
+
+
+        expected: Set[Tuple[str]] = {
+
+                ('Bezos, J', '10115', 'SSW 810', 'A', 'Rowland, J'),
+                ('Bezos, J', '10115', 'CS 546', 'F', 'Hawking, S'),
+                ('Gates, B', '11714', 'SSW 810', 'B-', 'Rowland, J'),
+                ('Gates, B', '11714', 'CS 546', 'A', 'Cohen, R'),
+                ('Gates, B', '11714', 'CS 570', 'A-', 'Hawking, S'),
+                ('Jobs, S', '10103', 'SSW 810', 'A-', 'Rowland, J'),
+                ('Jobs, S', '10103', 'CS 501', 'B', 'Hawking, S'),
+                ('Musk, E', '10183', 'SSW 555', 'A', 'Rowland, J'),
+                ('Musk, E', '10183', 'SSW 810', 'A', 'Rowland, J'),
+
+        }
+
+        db: sqlite3.Connection = sqlite3.connect(DB_FILE)
+        query: str = '''select students.Name, students.CWID, grades.Course, grades.Grade, instructors.Name
+                        from students join grades on students.CWID = grades.StudentCWID
+                        join instructors on grades.InstructorCWID = instructors.CWID order by students.Name ASC;'''
+        
+        calculated: Set[Tuple[str]] = {tuple(row) for row in db.execute(query)}
+
+        self.assertEqual(expected, calculated)
 
 
 if __name__ == '__main__':
