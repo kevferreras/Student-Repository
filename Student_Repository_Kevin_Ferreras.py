@@ -233,11 +233,5 @@ def main() -> None:
         print(university_repository.all_instructors_summary())
         print(university_repository.student_grades_table_db(DB_FILE))
 
-# if __name__ == '__main__':
-#     main()
-
-x = Repository(os.getcwd())
-print(x.all_majors_summary())
-print(x.all_students_summary())
-print(x.all_instructors_summary())
-print(x.student_grades_table_db(DB_FILE))
+if __name__ == '__main__':
+    main()
