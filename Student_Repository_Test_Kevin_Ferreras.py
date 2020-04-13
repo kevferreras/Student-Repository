@@ -96,6 +96,8 @@ class RepositoryTest(unittest.TestCase):
 
         self.assertEqual(expected, calculated)
 
+        db.close()
+
 
 if __name__ == '__main__':
     unittest.main(exit = False, verbosity = 2)

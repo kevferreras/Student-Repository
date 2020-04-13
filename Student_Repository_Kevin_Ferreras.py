@@ -214,6 +214,8 @@ class Repository:
         for row in db.execute(query):
             student_grades_summary_prettytable.add_row(row)
         
+        db.close()
+        
         return f'\nStudent Grade Summary:\n{student_grades_summary_prettytable}'
                 
 def main() -> None:
